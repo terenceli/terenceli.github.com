@@ -2,7 +2,7 @@
 layout: post
 title: "回溯算法及其例子"
 description: "回溯算法"
-category: Tech
+category: 技术
 tags: [算法]
 ---
 {% include JB/setup %}
