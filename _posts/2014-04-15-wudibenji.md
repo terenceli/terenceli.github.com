@@ -17,7 +17,7 @@ tags: [史记]
 
 首先五帝的关系如下图所示：
 
-![](/assets/img/wudibenji/1.png)
+![](/assets/img/wudibenji/1.PNG)
 
 图中红色字体表示的就是五帝。
 
