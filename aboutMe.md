@@ -12,8 +12,7 @@ group: navigation
 
 爱好：看书，写代码，玩游戏
 
-QQ:463299381 
 
-微博：[暮秋殇](http://weibo.com/u/1846512441)
+微博：[李老师要戒刀塔戒刀塔](http://weibo.com/u/1846512441)
 
 github:[terenceli](https://github.com/terenceli)
