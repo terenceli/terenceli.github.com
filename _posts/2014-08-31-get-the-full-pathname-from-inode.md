@@ -116,9 +116,9 @@ Linux最初采用的是minix的文件系统，minix是由Andrew S. Tanenbaum开�
 		struct list_head d_alias;	/* inode alias list */
 	};
 
-dentry结构中有一个指向inode的指针。dentry与inode结构所描述的目标是不一样的，因为一个文件可能对应多个文件名（链接）。所以dentry结构代表的是逻辑意义上的文件，记录的是其逻辑上的属性。而inode结构所代表的是物理意义上的文件，记录的是其物理上的属性；它们之间的关系是多对一的关系。dentry中海油个d_parent指向父目录的dentry结构。
+dentry结构中有一个指向inode的指针。dentry与inode结构所描述的目标是不一样的，因为一个文件可能对应多个文件名（链接）。所以dentry结构代表的是逻辑意义上的文件，记录的是其逻辑上的属性。而inode结构所代表的是物理意义上的文件，记录的是其物理上的属性；它们之间的关系是多对一的关系。这是因为一个已经建立的文件可以被连接 (link) 到其他文件名。dentry中海油个d_parent指向父目录的dentry结构。
 
-inode数据结构比较大，就不列出来了。要注意的是inode结构中有一个i_dentry是所有与这个inode关联的dentry。
+inode数据结构比较大，就不列出来了。要注意的是inode结构中有一个i_dentry是所有与这个inode关联的dentry。凡是代表着这个文件的所有目录项都通过其dentry结构中的d_alias挂入相应inode结构中的 i_dentry 队列。
 
 下面是需要注意的几点：
 
