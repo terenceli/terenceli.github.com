@@ -7,8 +7,8 @@ pygments: true
 
 # Themes are encouraged to use these universal variables 
 # so be sure to set them if your theme uses them.
-#
-title : 成长的脚印
+#       Terenceli的技术博客
+title : 不忘初心 方得始终
 tagline: Full of miracles
 author :
     name : Terenceli
