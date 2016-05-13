@@ -3,7 +3,7 @@ layout: post
 title: "QEMU参数解析"
 description: "qemu分析"
 category: 技术
-tags: [QEMU，虚拟化]
+tags: [QEMU, 虚拟化]
 ---
 {% include JB/setup %}
 
