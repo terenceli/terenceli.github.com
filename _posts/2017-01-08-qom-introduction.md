@@ -77,7 +77,8 @@ QOM全称qemu object model,顾名思义，这是对qemu中对象的一个抽象�
 
 这样一看就比较清楚了，init\_type\_list作为全局的list数组，所有通过type\_init注册的对象就会被放连接在init\_type\_list[MODULE\_INIT\_QOM]这个list上。这个过程可以用如下图表示。
 
-![](1.png)
+
+![](/assets/img/qom/1.png)
 
 我们注意到module\_init的定义
 
@@ -443,7 +444,8 @@ vmxnnet3的层次多一些，我们以他为例，首先看vmxnet3\_info的定�
 
 好了，总结一下，现在我们得到了什么，从最开始得TypeImpl初始化了每一个type对应的class，并且构建好了各个Class的继承关系。如下图所示,注意下面的***Class都包含了上面的一部分。
 
-![](2.png)
+
+![](/assets/img/qom/2.png)
 
 
 
@@ -671,7 +673,8 @@ vmxnnet3的层次多一些，我们以他为例，首先看vmxnet3\_info的定�
 
 最终，我们的vmxnet3_realize函数被调用了，这也就完成了object的构造，不同于type和class的构造，object当然是根据需要创建的，只有在命令行指定了设备或者是热插一个设备之后才会有object的创建。Class和object之间是通过Object的class域联系在一起的。如下图所示。
 
-![](3.png)
+
+![](/assets/img/qom/3.png)
 
 
 <h2 id="第五节">五. 总结</h2>
