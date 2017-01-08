@@ -686,3 +686,8 @@ vmxnnet3的层次多一些，我们以他为例，首先看vmxnet3\_info的定�
 <h2 id="后记">后记</h2>
 
 这篇文章很早很早以前就说写了，15年还在学校就应该写的，结果今年忙于挖洞，一直就拖啊拖的，一直到现在终于把这个坑填上，鄙视一下自己，自己已经准备了好多qemu内容，一直没有时间填坑，希望有时间都填上。
+
+<h2>参考</h2>
+
+1. [QEMU设备模拟](http://mnstory.net/2014/10/qemu-device-simulation/)
+2. QOM exegesis and apocalypse, Paolo Bonzini, KVM Forum 2014
