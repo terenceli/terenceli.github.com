@@ -67,7 +67,7 @@ Configuration symbols是定义在Kconfig file中的，每一个Kconfig file可�
 		select MODULES_USE_ELF_REL
 		select OLD_SIGACTION
 
-<h3><b> .config File </b></h3>
+<h3><b> .config file </b></h3>
 
 所有的config symbol值都保存在.config文件中，每一次执行meuconfig都会讲变化写入该文件。.config是一个文本文件，所以可以直接手动修改。.config每一行都会表示一个config symbol的值，如果没有选就会注释掉。
 
