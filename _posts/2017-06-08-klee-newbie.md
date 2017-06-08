@@ -33,7 +33,7 @@ llvm3.9添加到/etc/apt/sources.list
 
 	export PATH="/usr/lib/llvm-3.9/bin:$PATH"
 
-<h3>3. 安装constraint solver
+<h3>3. 安装constraint solver</h3>
 
 KLEE支持几种约束求解器，这里我用的是[Z3](https://github.com/z3prover/z3)，这个
 按照官网编译就好。
