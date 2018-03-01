@@ -238,3 +238,7 @@ qemu\_loadvm\_state\_main在一个循环里面处理各个section, src会把QEMU
 
 最后一个函数负责把接收到的数据拷贝到dst这端虚拟机内存上。
 本文就是对热迁移的简单分析，后面会对一些具体的问题进行分析。
+
+<h3>参考</h3>
+
+Amit Shah: [Live Migrating QEMU-KVM Virtual Machines](https://developers.redhat.com/blog/2015/03/24/live-migrating-qemu-kvm-virtual-machines/)
