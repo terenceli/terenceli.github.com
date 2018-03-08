@@ -23,6 +23,7 @@ CPUID.(EAX=7H,ECX=0):EDX[27]为1表示支持STIBP, OS可以写IA32_SPEC_CTRL[1] 
 
 Indirect Branch Restricted Speculation (IBRS): 简单点来说，一般情况下，在高权限代码里面向IBRS的控制位写1，就能够保证indirect branch不被低权限时候train出来的predictor影响，也能够防止逻辑处理器的影响（超线程的时候）。这里权限转换就是host user-> host kernel, guest -> host等等。可以把IBRS理解成不同特权级之间的predictor隔离。
 IBRS不能防止同一个级别的predictor共享，需要配合IBPB。
+IBRS也不能防止RSB的污染，需要在进入特权级的时候情况RSB。
 
 Single thread indirect branch predictors (STIBP)： 超线程中，一个core的逻辑处理器会共享一个indirect branch predictor，STIBP就是禁止这种共享，防止一个逻辑处理器的predictor被另一个污染。STIBP是IBRS的一个子集，所以一般开启了IBRS就不用开STIBP了。
 
