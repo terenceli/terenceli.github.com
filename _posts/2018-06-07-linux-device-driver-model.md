@@ -9,7 +9,7 @@ tags: [Linux内核]
 
 Welcome back the anatomy series articles, this one we will talk about the Linux device driver model. 
 
-##kobject and kset
+## kobject and kset
 
 kobject and kset is the basis of device driver model. Every kobject represent a kernel object. 
 
@@ -41,7 +41,7 @@ kobject and kset is the basis of device driver model. Every kobject represent a 
 'kobject\_init' function is used to initialize a kobject.
 'kobject_add' function create the object hierarchical and also create directory in sysfs, this directory will lies in 'parent' (while a parent is not NULL) or in the kset directory(parent is NULL) or in the root(if both NULL).
 
-###kobject's attributes
+### kobject's attributes
 There is a kobj\_type field in kobject。
 
       struct kobj_type {
@@ -135,7 +135,7 @@ Later in writing:
 
 call the sysfs\_ops store through sysfs\_open\_file struct of.
 
-###kset
+### kset
 kset is a collection of kobjects, it self is a kobject so it has a kobject field.
 
     struct kset {
@@ -202,7 +202,7 @@ Below show the relation between kset and kobject.
                             |     |
                             +-----+
 
-###uevent and call_usermodehelper
+### uevent and call_usermodehelper
 Hotplug mechanism can be considered as follows, when one device plug into the system , the kernel can notify the userspace program and the userspace program can load the device's driver, when it removes, it can remove the driver. There ares two methods to notify the userspace, one is udev and the other is /sbin/hotplug. Both need the kernel's support, kobject\_uevent'. This function is the base of udev or /sbin/hotplug, it can send uevent or call call\_usermodehelper function to create a user process. 
 
     int kobject_uevent(struct kobject *kobj, enum kobject_action action)
@@ -354,7 +354,7 @@ Firstly, find the top kset, then call the filter of kset->uevent\_ops.
 Secondly, set the environment variable and call uevent_ops->uevent.
 Finally, according the definition of CONFIG_NET it will send uevent message to userspace using netlink, or call the call\_usermodehelper function to launch a userprocess from kernel.
 
-###Bus
+## bus
 Bus is one of the core concept in linux device driver. Devices and drivers is around of bus. Bus is a very low level infrastructure that device driver programmer have nearly chance to write a bus. A bus can be both backed by a physical bus such as PCI bus or just a virtual concept bus such as virtio bus.
 
 
@@ -527,7 +527,7 @@ BUS\_ATTR is used to create bus attributes:
      
 User space can read/write these attributes to control bus's behavior.
 
-###Binding the device and driver
+### binding the device and driver
 Connect the device and his corresponding  driver is called binding. The bus does a lot of work to bind device and driver behind of the device driver progreammer. There are two events that will cause the bind. When one device is registered into a bus by device\_register, the kernel will try to bind this device with every drivers registered in this bus. When one driver is registered into a bus by driver\_registered, the kernel will try to bind this driver with every devices registered in this bus.
 
       int device_bind_driver(struct device *dev)
@@ -568,7 +568,7 @@ Connect the device and his corresponding  driver is called binding. The bus does
 device\_register calls driver\_bound to bind the device and drivers.
 Links device private's field knode\_driver with the driver private's klist\_devices.
 
-###device
+## device
 Linux uses struct device to represent a device. 
 
 
@@ -842,7 +842,7 @@ If the device and the driver matchs, call 'driver\_probe\_device' to bind the de
 If the device's bus define a probe calls it others call athe driver's probe function.
 Finally call 'driver\_bound' to establish the relations.
 
-###driver
+## driver
 struct device\_driver represents  a device driver.
 
 
@@ -1010,7 +1010,7 @@ In  '\_\_driver\_attach', it calls both 'driver\_match\_device' and 'driver\_pro
 
 'bus\_add\_driver' will also create some attribute files.
 
-###class
+## class
 class is a highter abstract of devices, classify the devices according the devices' functionality.
 
     struct class {
