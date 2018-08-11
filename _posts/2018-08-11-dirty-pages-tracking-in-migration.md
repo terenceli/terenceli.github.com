@@ -24,7 +24,7 @@ In a summary, the following steps show the overview of dirty tracking:
 
 <h3> qemu and kvm create bitmap </h3>
 
-In the ram migration setup function, it allocates the qemu bitmap in function 'ram_\save\_init\_globals'.
+In the ram migration setup function, it allocates the qemu bitmap in function 'ram\_save\_init\_globals'.
 
     {
         ...
