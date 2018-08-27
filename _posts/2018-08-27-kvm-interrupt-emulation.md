@@ -1,9 +1,9 @@
 ---
 layout: post
-title: "Add a new qmp command for qemu "
-description: "add qmp command"
+title: "kvm interrupt emulation"
+description: "kvm interrupt"
 category: 技术
-tags: [qemu]
+tags: [kvm]
 ---
 {% include JB/setup %}
 
