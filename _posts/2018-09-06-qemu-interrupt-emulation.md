@@ -7,7 +7,7 @@ tags: [虚拟化, QEMU]
 ---
 {% include JB/setup %}
 
-I have written a blog about kvm interrupt emulation. As we know, the QEMU can emulation the whole system, in this blog, I will disscuss how the QEMU emulate the interrupt chip of a virtual machine. In this blog, we assume that all of the irqchip is emulated in QEMU, set the qemu command line with '-machine kernel-irqchip=split' can achive this.
+I have written a blog about kvm interrupt emulation. As we know, the QEMU can emulation the whole system, in this blog, I will disscuss how the QEMU emulate the interrupt chip of a virtual machine. In this blog, we assume that all of the irqchip is emulated in QEMU, set the qemu command line with '-machine kernel-irqchip=off' can achive this.
 
 <h3> Interrupt controller initialization </h3>
 
