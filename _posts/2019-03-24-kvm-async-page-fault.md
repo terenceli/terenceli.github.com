@@ -65,8 +65,7 @@ Next part I will discuss the code in above process.
 
 <h4> para guest initialization when startup </h4>
 
-commit: [KVM paravirt: Add async PF initialization to PV guest.
-](https://git.kernel.org/pub/scm/virt/kvm/kvm.git/commit/?id=fd10cde9294f73eeccbc16f3fec1ae6cde7b800c)
+commit: [KVM paravirt: Add async PF initialization to PV guest.](https://git.kernel.org/pub/scm/virt/kvm/kvm.git/commit/?id=fd10cde9294f73eeccbc16f3fec1ae6cde7b800c)
 
 Here we can see, the apf is enabled default and can be disabled with the 'no-kvmapf' parameter in kernel command line.
 
@@ -179,9 +178,9 @@ When the guest write to msr 'MSR_KVM_ASYNC_PF_EN' the kvm module calls 'kvm_pv_e
 <h4> kvm do the apf work </h4>
 
 There are two commit with this part.
-commit: KVM: Halt vcpu if page it tries to access is swapped out[https://git.kernel.org/pub/scm/virt/kvm/kvm.git/commit/?id=af585b921e5d1e919947c4b1164b59507fe7cd7b] this commit setup the framework of apf.
+commit: [KVM: Halt vcpu if page it tries to access is swapped out](https://git.kernel.org/pub/scm/virt/kvm/kvm.git/commit/?id=af585b921e5d1e919947c4b1164b59507fe7cd7b) this commit setup the framework of apf.
 
-commit: KVM: Inject asynchronous page fault into a PV guest if page is swapped out[https://git.kernel.org/pub/scm/virt/kvm/kvm.git/commit/?id=7c90705bf2a373aa238661bdb6446f27299ef489] this commit do the final work
+commit: [KVM: Inject asynchronous page fault into a PV guest if page is swapped out](https://git.kernel.org/pub/scm/virt/kvm/kvm.git/commit/?id=7c90705bf2a373aa238661bdb6446f27299ef489) this commit do the final work
 
 Let's first look at the first commit.
 
@@ -286,7 +285,7 @@ If the kvm can do apf, it calls 'kvm_setup_async_pf'(called by 'kvm_arch_setup_a
 
 Then in the '__vcpu_run' when the guest VMEXIT, it calls 'kvm_check_async_pf_completion' to check whether the apf work is done. This is the first version of apf, called 'batch mechanism'. Commit [KVM: async_pf: Provide additional direct page notification](https://git.kernel.org/pub/scm/virt/kvm/kvm.git/commit/?id=e0ead41a6dac09f86675ce07a66e4b253a9b7bd5) add a Config 'KVM_ASYNC_PF_SYNC'. When this selected, the 'kvm' will notify the guest directly.
 
-commit: KVM: Inject asynchronous page fault into a PV guest if page is swapped out[https://git.kernel.org/pub/scm/virt/kvm/kvm.git/commit/?id=7c90705bf2a373aa238661bdb6446f27299ef489] is easy to understand.
+commit: [KVM: Inject asynchronous page fault into a PV guest if page is swapped out](https://git.kernel.org/pub/scm/virt/kvm/kvm.git/commit/?id=7c90705bf2a373aa238661bdb6446f27299ef489) is easy to understand.
 
 Following is the core, when the page not present, the kvm can halt the vcpu or inject 'KVM_PV_REASON_PAGE_NOT_PRESENT' to guest. When the async page is ready, the kvm inject 'KVM_ASYNC_PF_ENABLED' to guest. 
 
@@ -332,4 +331,4 @@ Following is the core, when the page not present, the kvm can halt the vcpu or i
 <h3> Reference </h3>
 
 [1] [Asynchronous page faults](https://www.linux-kvm.org/images/a/ac/2010-forum-Async-page-faults.pdf)
-[2] [从kvm场景下guest访问的内存被swap出去之后说起][https://www.kernelnote.com/entry/kvmguestswap]
+[2] [从kvm场景下guest访问的内存被swap出去之后说起](https://www.kernelnote.com/entry/kvmguestswap)
