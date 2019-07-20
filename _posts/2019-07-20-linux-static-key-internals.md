@@ -18,7 +18,7 @@ There are three aspects for static_key:
 
 The idea of static_key is illustrated as following:
 
-![](/assets/img/static_key/1.jpg)
+![](/assets/img/static_key/1.png)
 
 
 Here in most situation the switch is the 'most state' so the red block is nop, this means the switch is in the 'mostly' state. When we change the state of the switch,the kernel will update the red block as a jump instruction so that the code can go to the '2' code flow. 
@@ -89,7 +89,7 @@ The 'STATIC_KEY_INIT_NOP' is 'no-op instruction' , it is '0x0f,0x1f,0x44,0x00,0'
 
 'static_key_false' and 'arch_static_branch' is always inline, so 'kvm_apic_sw_enabled' will be compiled as following asm instruction. 
 
-![](/assets/img/static_key/2.jpg)
+![](/assets/img/static_key/2.png)
 
 
 Notice we have set the 'kvm_apic_sw_enabled' as noinline by adding 'noline' in the function signature.
@@ -162,7 +162,7 @@ Later if the static_key is defined in this module, 'jump_label_add_module' sets 
 After calling 'jump_label_add_module', the 'static_key' and 'jump_entry' has following relation.
 
 
-![](/assets/img/static_key/3.jpg)
+![](/assets/img/static_key/3.png)
 
 
 <h4> patch the function </h4>
