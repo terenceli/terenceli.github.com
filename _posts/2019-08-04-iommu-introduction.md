@@ -25,9 +25,9 @@ IOMMU has the ability to isolate and restrict device accesses to the resources(t
 
 
 Intel IOMMU(also called VT-d) has the following capabilities:
-DMA remapping: this supports address translations for DMA from device.
-Interrupt remapping: this supports isolation and routing of interrupts from devices and external interrupt controllers to appropriate VMs.
-Interrupt posting: this supports direct delivery of virtual interrupts from devfices and excternal interrupt controllers to virtual processors.
+* DMA remapping: this supports address translations for DMA from device.
+* Interrupt remapping: this supports isolation and routing of interrupts from devices and external interrupt controllers to appropriate VMs.
+* Interrupt posting: this supports direct delivery of virtual interrupts from devfices and excternal interrupt controllers to virtual processors.
 
 
 qemu/kvm virtual machine now uses VFIO to do device assignment. VFIO utilizes IOMMU's DMA remapping to do DMA in VM, but it doesn't use interrupt remapping as it is not efficient compared with the irqfd in kernel IMO.
