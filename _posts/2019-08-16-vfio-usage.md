@@ -60,7 +60,7 @@ Find the vendor and device ID
 
 Bind the device to vfio-pci driver(should modprobe vfio-pci firstly)
 
-        echo 15ad 07b0 /sys/bus/pci/drivers/vfio-pci/new_id
+        echo 15ad 07b0 > /sys/bus/pci/drivers/vfio-pci/new_id
 
 Now we can see a new node created in '/dev/vfio/', this is the group id.
 
