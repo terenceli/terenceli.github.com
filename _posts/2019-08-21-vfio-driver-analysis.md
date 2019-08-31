@@ -330,7 +330,7 @@ The vfio iommu driver supported by system is registered in 'vfio.iommu_drivers_l
 'domain_list' links the 'vfio_domain' attached to the container. 'dma_list' is used to record the IOVA information. 
 
 'vfio_iommu_type1_attach_group' is used to attach a iommu_group to the vfio iommu. 'vfio_iommu_type1_attach_group' will allocate a new 'vfio_group' and 'vfio_domain'. 'vfio_domain' has a 'iommu_domain' which is used to store the hardware iommu information. Then this function calls 'iommu_attach_group' to attach the iommu group to iommu domain. This finally calls 'intel_iommu_attach_device'. After 'domain_add_dev_info'->'dmar_insert_one_dev_info'->'domain_context_mapping'...->'domain_context_mapping_one'. The device's info was written to the context table.
-Notice, in 'vfio_iommu_type1_attach_group', if two vfio_domain 
+Notice, in 'vfio_iommu_type1_attach_group', if two vfio_domain has the same iommu, then different group will be attached to the same 'vfio_domain'.
 
 Following figure shows some of the data structure's relation.
 
