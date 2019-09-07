@@ -27,7 +27,10 @@ However we don't need this compilcated emulation. The most that we need for clou
 
 ![](/assets/img/cloud_hypervisor/2.png)
 
-As we can see, the cloud-hypervisor's architecutre is very easy, it even has no abstract of motherboard. It has just several virtio devices, no isa bus, no PCI bus tree. 
+As we can see, the cloud-hypervisor's architecutre is very easy, it even has no abstract of motherboard. It has just several virtio devices, no isa bus, no PCI bus tree. Following shows the pci devices.
+
+
+![](/assets/img/cloud_hypervisor/4.png)
 
 <h3> Some code </h3>
 
