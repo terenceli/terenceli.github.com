@@ -172,7 +172,7 @@ The uprobe has no separately interface exported except the debugfs/tracefs. Foll
 
 <h3> tracepoint </h3>
 
-<h4> tracepoint anatomy </h3>
+<h4> tracepoint anatomy </h4>
 
 Low linux kernel version has a standalone example of pure tracepoint, for example v3.8 has a example in samples/tracepoints directory. Of course it can't work in currently high version because currently the tracepoint has a more connection with the
 tracer(ftrace) and together called 'trace event' which I will talk about it in the next post. 
