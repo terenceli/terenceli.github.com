@@ -9,9 +9,9 @@ tags: [内核, 虚拟化]
 
 
 In full virtualization the guest OS doesn't aware of it is running in an VM. If the OS knows it is running in an VM it can do some optimizations to improve the performance. This is called para virtualization(pv). From a generally speaking, 
-Any technology used in the guest OS that it is based the assumption that it is running in a VM can be called a pv technology. For example the virtio is a para framework, and the [apf](https://terenceli.github.io/%E6%8A%80%E6%9C%AF/2019/03/24/kvm-async-page-fault). However in this post, I will not talk about these more complicated feature but some more small performance optimization feature in pv. 
+Any technology used in the guest OS that it is based the assumption that it is running in a VM can be called a pv technology. For example the virtio is a para framework, and the [apf](https://terenceli.github.io/%E6%8A%80%E6%9C%AF/2019/03/24/kvm-async-page-fault) is also a para feature. However in this post, I will not talk about these more complicated feature but some more small performance optimization feature in pv. 
 
-One of the most important thing in VM optimization is to reduce the VM-exit as much as possible, the best is ther is no VM-exit.
+One of the most important thing in VM optimization is to reduce the VM-exit as much as possible, the best is there is no VM-exit.
 
 This post contains the following pv optimization:
 
