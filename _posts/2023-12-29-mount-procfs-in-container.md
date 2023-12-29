@@ -12,8 +12,14 @@ tags: [容器, gVisor]
 <h3> Background </h3>
 
 gVisor is an application kernel that implements a substantial portion of the Linux system surface. gVisor is mostly used in cloud native as it implements an OCI runtime runsc. runsc uses the application kernel which is named Sentry to run the user's application. By this mean, the application doesn't share the same kernel with the host like what runc does which largely reduce the attack surface in container ecosystem.
+
+
 gVisor is quite interesting that it rewrites the Linux syscall interface. The foundation of gVisor is system call interception. gVisor has three means of system call interception, ptrace, kvm and systrap. gVisor uses these interception means to intercept the user's application syscall and reimplements it in Sentry.
+
+
 Though gVisor is used mostly in cloud native ecosystem, it is useful in process-level sandbox. I have designed a process-level sandbox based gVisor to sandbox the dangerous third party program.
+
+
 Recently I encounter a problem that run gVisor in unprivileged container like docker or podman. When I run gVisor in docker it returns an EPERM error code. Following shows the error.
 
 
@@ -37,6 +43,8 @@ The error is that mount procfs in docker container return EPERM.
 <h3> Analysis </h3>
 
 The mount syscall has several point to return EPERM. We need find which point it is that cause our gVisor failed.
+
+
 I used following method. First patch the gVisor to add sleep code before the mount procfs error. Then we run runsc. The gofer process(which the mount failed occurs) will sleep.  We uses trace-cmd to trace the gofer process' kernel function call.
 
 
@@ -59,7 +67,11 @@ After look at the trace output, I find the suspicious function.
 
 
 From the code we can found the 'mount_too_revealing' return true and should be responsible for our EPERM. 'mount_too_revealing' calls 'mnt_already_visible' to do the decision. As my [previous blog](https://terenceli.github.io/%E6%8A%80%E6%9C%AF/2022/03/06/cve-2022-0492) said:
+
+
 ‘mnt_already_visible’ will iterate the new mount namespace and check whether it has child mountpoint. If it has child mountpoint, it is not fully visible to this mount namespace so the procfs will not be mounted. This reason is as following. The procfs and sysfs contains some global data, so the container should not touch. So mouting procfs and sysfs in new user namespace should be restricted. Anyway, if we allow this, we can mount the whole procfs data in new user namespace. In docker and runc environment, it has ‘maskedPaths’ which means the path should be masked in container. 
+
+
 Also I find there an old discuss in [runc issue](https://github.com/opencontainers/runc/issues/1658). The reason is just as I said. But Alban Crequy gives [two solutions](https://github.com/opencontainers/runc/issues/1658#issuecomment-375750981). 
 
 
