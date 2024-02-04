@@ -1,7 +1,7 @@
 ---
 layout: post
-title: "CVE-2021-3493 Ubuntu overlayfs privilege escalation vulnerability analysis"
-description: "Ubuntu overlayfs vulnerability"
+title: "Why Golang eat my fd 3 in child process"
+description: "CVE-2024-21626"
 category: 技术
 tags: [漏洞分析]
 ---
