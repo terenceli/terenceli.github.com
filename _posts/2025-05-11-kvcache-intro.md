@@ -379,7 +379,7 @@ transformer中kv cache的简单分析就差不多结束了，这里以几个问�
 
 2. 为什么没有 Q Cache
 
-    从上面分析可以看到，历史的 Q Cache 并没有使用，存起来没有意义。
+    从上面分析可以看到，历史的 Q 并没有使用，存起来没有意义。
 
 3. Transformer 中默认代码里面没有使用 Causal Mask
 
