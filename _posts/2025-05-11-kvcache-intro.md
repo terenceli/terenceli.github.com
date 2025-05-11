@@ -372,18 +372,18 @@ model = AutoModelForCausalLM.from_pretrained("F:\\model\\DeepSeek-R1-Distill-Qwe
 
 transformer中kv cache的简单分析就差不多结束了，这里以几个问题进行总结。
 
-1. 为什么说只有causal模型能够使用kv cache
 
-因为causal模型中，有sequence的attention mask，使得新token的注意力只依赖自身的QKV以及历史token的KV。
+1. 为什么说只有 Causal 模型能够使用 KV Cache
 
-2. 为什么没有q cache
+    因为 Causal 模型中，有 sequence 的 attention mask，使得新 token 的注意力只依赖自身的 QKV 以及历史 token 的 KV。
 
-从上面分析可以看到，历史的q cache并没有使用，存起来没有意义。
+2. 为什么没有 Q Cache
 
-3. transformer中默认代码里面没有使用causal  mask
+    从上面分析可以看到，历史的 Q Cache 并没有使用，存起来没有意义。
 
-使用了，是在pytorch框架函数里面使用的。
+3. Transformer 中默认代码里面没有使用 Causal Mask
 
+    使用了，是在 PyTorch 框架函数里面使用的。
 
 <h2> Ref </h2>
 
