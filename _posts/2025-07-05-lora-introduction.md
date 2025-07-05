@@ -28,7 +28,7 @@ tags: [技术, LoRA, 大模型]
 
 
 
-![](/assets/img/loraintro/2.png)
+![](/assets/img/loraintro/1.png)
 
 
 下面是deepseek生成的伪代码，其核心过程如下：
@@ -117,11 +117,11 @@ LoRA核心思路如下：
 * A的初始化用随机高斯分布，B的初始化用0矩阵。
 
 
-上图左侧是全量微调的例子，其中参数$W_{0} \in R^{d\times d}$是大模型的预训练权重，$\bigtriangleup W$是微调的权重，这样拆分是因为在微调过程中$W_{0}$被固定了，只改变$\bigtriangleup W$，可以看到在全量微调中，$\bigtriangleup W$的大小是等于$\bigtriangleup W$，通常都是非常大的，$d\times d$。
+上图左侧是全量微调的例子，其中参数 $$ W_{0} \in R^{d\times d} $$ 是大模型的预训练权重，$$ \bigtriangleup W $$ 是微调的权重，这样拆分是因为在微调过程中 $$ W_{0} $$ 被固定了，只改变 $$ \bigtriangleup W $$，可以看到在全量微调中，$$ \bigtriangleup W $$ 的大小是等于 $$ \bigtriangleup W $$，通常都是非常大的，$$ d\times d $$ 。
 
-右侧则是LoRA中微调，其微调过程变成了，现将输入通过矩阵A降维，$A\in R^{d\times r}$，r在这里成为秩，是一个比较小的值，然后再通过一个矩阵B升维，$B\in R^{r\times d}$，可以看到输入x经过AB之后，输出$\bigtriangleup W$依然是$d\times d$,此时将$\bigtriangleup W$和$W_{0}$相加依然对该层进行了微调。
+右侧则是LoRA中微调，其微调过程变成了，现将输入通过矩阵A降维，$$ A\in R^{d\times r} $$，r在这里成为秩，是一个比较小的值，然后再通过一个矩阵B升维，$$ B\in R^{r\times d} $$，可以看到输入x经过AB之后，输出 $ \bigtriangleup W $$ 依然是 $$ d\times d $$,此时将 $$ \bigtriangleup W $$ 和 $$ W_{0} $$ 相加依然对该层进行了微调。
 
-这里的核心是r远小于d，假设d是100，则全量微调需要更新$d\times d$共10000个参数，但是如果r设置为8，则只需要更新$2\times r\times d$共1600个参数。
+这里的核心是r远小于d，假设d是100，则全量微调需要更新 $$ d\times d $$ 共10000个参数，但是如果r设置为8，则只需要更新 $$ 2\times r\times d $$ 共1600个参数。
 
 至于这个为啥能work，又是基于前人的intrinsic dimension研究，大概的意思就是参数的特征位于一个低维的子空间中。
 
