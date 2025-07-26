@@ -6,13 +6,13 @@ group: navigation
 ---
 {% include JB/setup %}
 
-网名：Terenceli
+Education: Master and Bachelor from Xidian University
 
-学校：西电
+Expertise: Linux (kernel) security/Container & VM and its security(qemu, runc, gVisor, Kata, microVM)
 
-爱好：看书，写代码，玩游戏
+Experiences: VM vulnerability hunter/Virtualization development/Infrastructure security engineer
 
 
-微博：[李老师要戒刀塔戒刀塔](http://weibo.com/u/1846512441)
+Github: [terenceli](https://github.com/terenceli)
 
-github:[terenceli](https://github.com/terenceli)
+Email: liq3ea at gmail.com
